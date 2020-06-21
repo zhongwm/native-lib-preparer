@@ -9,7 +9,7 @@ Java native library preparer, get native library prepared for jna / jni loading
 With dynamic load lib files in resources folder as: 
 
 ```
-javaprj/src/main/resources
+src/main/resources
 ├── libAbx0.dylib 
 └── libawesome.dylib
 
