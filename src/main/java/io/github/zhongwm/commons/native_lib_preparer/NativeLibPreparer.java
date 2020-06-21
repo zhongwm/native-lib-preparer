@@ -30,7 +30,7 @@
  * by Zhongwenming<br>
  */
 
-package zhong.wm.commons.native_lib_preparer;
+package io.github.zhongwm.commons.native_lib_preparer;
 
 import java.io.*;
 import java.net.URISyntaxException;
