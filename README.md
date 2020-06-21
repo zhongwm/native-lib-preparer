@@ -18,19 +18,19 @@ javaprj/src/main/resources
 Simply use: 
 
 ```java 
-        try {
-            String[] entryPaths = new String[]{
-                    "libAbx0.dylib",
-                    "libawesome.dylib",
-            };
-            String libPath = makeAvailable(entryPaths);
-            if (! libPath.equals(System.getProperty("user.dir"))) {
-                System.loadLibrary("Abx0");
-                System.out.println("Library loaded...");
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+try {
+    String[] entryPaths = new String[]{
+            "libAbx0.dylib",
+            "libawesome.dylib",
+    };
+    String libPath = makeAvailable(entryPaths);
+    if (! libPath.equals(System.getProperty("user.dir"))) {
+        System.loadLibrary("Abx0");
+        System.out.println("Library loaded...");
+    }
+} catch (URISyntaxException e) {
+    e.printStackTrace();
+} catch (IOException e) {
+    e.printStackTrace();
+}
 ```
