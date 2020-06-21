@@ -36,3 +36,7 @@ try {
     e.printStackTrace();
 }
 ```
+
+## System compatibility
+
+Currently supports Mac OS X, support for windows, *nix is to be added.    
