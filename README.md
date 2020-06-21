@@ -18,6 +18,11 @@ src/main/resources
 Simply use: 
 
 ```java 
+
+...
+import static io.github.zhongwm.commons.native_lib_preparer.NativeLibPreparer.makeAvailable;
+...
+
 try {
     String[] entryPaths = new String[]{
             "libAbx0.dylib",
