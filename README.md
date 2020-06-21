@@ -25,10 +25,6 @@ Simply use:
             };
             String libPath = makeAvailable(entryPaths);
             if (! libPath.equals(System.getProperty("user.dir"))) {
-//                appendLoadDir(libPath, "java.library.path");
-//                System.out.println("P:" + System.getProperty("java.library.path"));
-
-//                AbxClient.ClassPathHacker.addFile(new File(libPath));
                 System.loadLibrary("Abx0");
                 System.out.println("Library loaded...");
             }
