@@ -25,6 +25,7 @@ try {
     };
     String libPath = makeAvailable(entryPaths);
     if (! libPath.equals(System.getProperty("user.dir"))) {
+        // Does not need loadLibrary when used with JNA. 
         System.loadLibrary("Abx0");
         System.out.println("Library loaded...");
     }
