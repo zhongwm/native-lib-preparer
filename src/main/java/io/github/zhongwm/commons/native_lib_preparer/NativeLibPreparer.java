@@ -104,7 +104,7 @@ public class NativeLibPreparer {
 
 
 //        Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-l", "-c", String.format("find \"%s\"", jn.toFile().getAbsolutePath())});
-        Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-l", "-c", String.format("find \"%s\"", System.getProperty("user.dir"))});
+        /*Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-l", "-c", String.format("find \"%s\"", System.getProperty("user.dir"))});
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
         for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
             System.out.println(line);
@@ -114,7 +114,7 @@ public class NativeLibPreparer {
         for (String line = errbufferedReader.readLine(); line != null; line = errbufferedReader.readLine()) {
             System.out.println(line);
         }
-        errbufferedReader.close();
+        errbufferedReader.close();*/
         return jn.toFile().getAbsolutePath();
     }
 
