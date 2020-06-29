@@ -83,8 +83,12 @@ public class NativeLibPreparer {
                 linkParentDir.deleteOnExit();
             }
         }
-        Files.createSymbolicLink(linkPath, finalPath);
-        linkPathFile.deleteOnExit();
+        try {
+            Files.createSymbolicLink(linkPath, finalPath);
+            linkPathFile.deleteOnExit();
+        } catch (java.nio.file.FileAlreadyExistsException e) {
+            System.out.println("file already exist " + linkPath);
+        }
         return linkPath;
     }
 
@@ -120,19 +124,21 @@ public class NativeLibPreparer {
 
     static void extractTo(File jarFile, Path contentRoot, String[] subPaths) throws IOException {
         if (jarFile.isDirectory()) {
+//            System.out.println("jarFile is a directory.");  // debug
             for (String p: subPaths) {
                 mkLinkToCwd(contentRoot, p);
             }
         } else {
-            
-            Path darwinP = Files.createDirectory(contentRoot.resolve("darwin"));
-            darwinP.toFile().deleteOnExit();
+//            System.out.println("jarFile is not a directory.");  // debug
             ZipFile j = new ZipFile(jarFile);
             for (String p : subPaths) {
                 ZipEntry entry = j.getEntry(p);
                 InputStream inputStream = j.getInputStream(entry);
-                Files.copy(inputStream, contentRoot.resolve(p));
-                contentRoot.resolve(p).toFile().deleteOnExit();
+                Path outputPath = contentRoot.resolve(p);
+//                System.out.println("Extract " + p + " to " + outputPath);  // debug
+                boolean mkdirsResultIgnored = outputPath.getParent().toFile().mkdirs();
+                Files.copy(inputStream, outputPath);
+                outputPath.toFile().deleteOnExit();
                 mkLinkToCwd(contentRoot, p);
             }
             j.close();
