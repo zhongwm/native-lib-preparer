@@ -37,6 +37,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -92,6 +95,22 @@ public class NativeLibPreparer {
         return linkPath;
     }
 
+    public static String makeAvailable(Map<String, InputStream> entries) throws IOException {
+        Path jn = getPathToLink(true);
+        for (Map.Entry<String, InputStream> entry: entries.entrySet())
+            extractTo(jn, entry.getKey(), entry.getValue());
+
+        return jn.toFile().getAbsolutePath();
+    }
+
+    public static String makeAvailable(List<Map.Entry<String, InputStream>> entries) throws IOException {
+        Path jn = getPathToLink(true);
+        for (Map.Entry<String, InputStream> entry: entries)
+            extractTo(jn, entry.getKey(), entry.getValue());
+        
+        return jn.toFile().getAbsolutePath();
+    }
+
     public static String makeAvailable(String[] entryPaths) throws URISyntaxException, IOException {
         File jarFile = new File(NativeLibPreparer.class.getProtectionDomain().getCodeSource().getLocation()
                 .toURI());
@@ -143,6 +162,16 @@ public class NativeLibPreparer {
             }
             j.close();
         }
+    }
+
+    static void extractTo(Path contentRoot, String filename, InputStream inputStream) throws IOException {
+//       System.out.println("jarFile is not a directory.");  // debug
+        Path outputPath = contentRoot.resolve(filename);
+//       System.out.println("Extract " + p + " to " + outputPath);  // debug
+        boolean mkdirsResultIgnored = outputPath.getParent().toFile().mkdirs();
+        Files.copy(inputStream, outputPath);
+        outputPath.toFile().deleteOnExit();
+        mkLinkToCwd(contentRoot, filename);
     }
 
     public static void appendLoadDir(String libPath, String key) throws IOException {
