@@ -44,4 +44,8 @@ try {
 
 ## System compatibility
 
-Currently supports Mac OS X, support for windows, *nix is to be added.    
+Currently supports Mac OS X, windows, linux 
+
+#### On linux
+
+On linux we need to set System properties "java.library.path" = "." + File.pathSeparator + "${java.library.path}"
