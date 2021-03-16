@@ -17,7 +17,8 @@ your java code before your first load of the native library or at the bootstrapp
 usage:
 
 ```java
-makeAvailable(...)  // 3 overloads for your need.
+makeAvailable(new String[]{"libfoo.dll"});  // 3 overloads for your need.
+// Now your library ready to load your library.
 ```
 
 ### An example
