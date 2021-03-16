@@ -21,14 +21,16 @@ makeAvailable(new String[]{"libfoo.dll"});  // 3 overloads for your need.
 
 ### A detailed example
 
-With dynamic load lib files in resources folder as:
+Say we have a native dynamic load library named foo to load into your java process, you put it and
+its dependency in we resources folder like this.
 
 ```
 src/main/resources
 ├── libfoo.dylib      // The library you are interested in.
 └── libbar.dylib      // Some library that "libfoo.dylib" depends on.
+```
 
-``` 
+Here is how to make things work.
 
 ```java 
 import static io.github.zhongwm.commons.native_lib_preparer.NativeLibPreparer.makeAvailable;
