@@ -54,9 +54,11 @@ public class NativeLibPreparer {
     public static boolean debug = false;
 
     /**
-     * make available the entries from your name to InputStream map, 1 of 3 overloads.
-     * Names can be different from the class fqdn path of your classpath, for say,
-     * "native/liba.a": getResourceAsStream("lib/liba.a")
+     * Make the libraries specified by entries from your name to InputStream map available to java
+     * native lib loader, 1 of 3 overloads.
+     * 
+     * Names can be different from the class fqdn path of your classpath, for say, "native/liba.a":
+     * getResourceAsStream("lib/liba.a")
      *
      * @param entries
      * @return
@@ -71,9 +73,11 @@ public class NativeLibPreparer {
     }
 
     /**
-     * make available the entries from your name to InputStream map, 2 of 3 overloads.
-     * Names can be different from the class fqdn path of your classpath, for say,
-     * "native/liba.a": getResourceAsStream("lib/liba.a")
+     * Make the libraries specified by entries from your name to InputStream map available to java
+     * native lib loader, 2 of 3 overloads.
+     *
+     * Names can be different from the class fqdn path of your classpath, for say, "native/liba.a":
+     * getResourceAsStream("lib/liba.a")
      *
      * @param entries
      * @return
@@ -88,7 +92,8 @@ public class NativeLibPreparer {
     }
 
     /**
-     * make available the entries from your name to InputStream map, 3 of 3 overloads.
+     * Make the native libraries from your classpath available to the java native lib loader, 3 of 3
+     * overloads.
      *
      * @param entryPaths
      * @return
