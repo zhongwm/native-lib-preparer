@@ -21,7 +21,7 @@ makeAvailable(new String[]{"libfoo.dll"});  // 3 overloads for your need.
 // Now your library ready to load your library.
 ```
 
-### An example
+### A detailed example
 
 With dynamic load lib files in resources folder as:
 
