@@ -60,4 +60,4 @@ try {
 
 ## System compatibility
 
-Currently supports Mac OS X, for windows, linux.    
+Currently supports Mac OS X, windows, linux 
