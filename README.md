@@ -1,4 +1,4 @@
-# A java native lib preparer
+# A Java Native Lib Preparer
 
 Java native library preparer, get native library prepared for JNA / JNI loading.
 
@@ -8,9 +8,7 @@ If you use JNA, this library also helps, actually, what it does is a needed step
 You do not need loadLibrary when used with JNA, just be sure to "makeAvailable"
 before JNA loading phase.
 
-
 ## Get started
-
 
 Make some arbitrary native library in your classpath available to your java process, make it from
 your java code before your first load of the native library or at the bootstrapping of your process.
@@ -33,10 +31,7 @@ src/main/resources
 ``` 
 
 ```java 
-
-...
 import static io.github.zhongwm.commons.native_lib_preparer.NativeLibPreparer.makeAvailable;
-...
 
 try {
     String[] entryPaths = new String[]{
