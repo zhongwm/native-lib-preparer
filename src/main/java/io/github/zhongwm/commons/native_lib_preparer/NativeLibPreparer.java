@@ -37,20 +37,96 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
+ * Make some arbitrary native library in your classpath available to your java process, make it from
+ * your code before your first load of the native library or at the bootstrapping of your process.
+ * usage:
  *
- * todo: os specific treatment
+ * <pre><code>makeAvailable(...)  // 3 overloads for your need. </code></pre>
  */
 public class NativeLibPreparer {
+    private static final String NAME_JAVA_LIBRARY_PATH = "java.library.path";
     public static boolean debug = false;
 
-    public static Path getPathToLink(boolean isTmp) throws IOException {
+    /**
+     * make available the entries from your name to InputStream map, 1 of 3 overloads.
+     * Names can be different from the class fqdn path of your classpath, for say,
+     * "native/liba.a": getResourceAsStream("lib/liba.a")
+     *
+     * @param entries
+     * @return
+     * @throws IOException
+     */
+    public static String makeAvailable(Map<String, InputStream> entries) throws IOException {
+        Path jn = getPathToLink(true);
+        for (Map.Entry<String, InputStream> entry: entries.entrySet())
+            extractTo(jn, entry.getKey(), entry.getValue());
+
+        return jn.toFile().getAbsolutePath();
+    }
+
+    /**
+     * make available the entries from your name to InputStream map, 2 of 3 overloads.
+     * Names can be different from the class fqdn path of your classpath, for say,
+     * "native/liba.a": getResourceAsStream("lib/liba.a")
+     *
+     * @param entries
+     * @return
+     * @throws IOException
+     */
+    public static String makeAvailable(List<Map.Entry<String, InputStream>> entries) throws IOException {
+        Path jn = getPathToLink(true);
+        for (Map.Entry<String, InputStream> entry: entries)
+            extractTo(jn, entry.getKey(), entry.getValue());
+        
+        return jn.toFile().getAbsolutePath();
+    }
+
+    /**
+     * make available the entries from your name to InputStream map, 3 of 3 overloads.
+     *
+     * @param entries
+     * @return
+     * @throws IOException
+     */
+    public static String makeAvailable(String[] entryPaths) throws URISyntaxException, IOException {
+        File jarFile = new File(NativeLibPreparer.class.getProtectionDomain().getCodeSource().getLocation()
+                .toURI());
+        String jarFilePath = jarFile.getPath();
+        Path jn = getPathToLink(true);
+        extractTo(jarFile, jn, entryPaths);
+        return jn.toFile().getAbsolutePath();
+    }
+
+    static void extractTo(File jarFile, Path contentRoot, String[] subPaths) throws IOException {
+        if (jarFile.isDirectory()) {
+            for (String p: subPaths) {
+                mkLinkToCwd(contentRoot, p);
+            }
+        } else {
+            ZipFile j = new ZipFile(jarFile);
+            for (String p : subPaths) {
+                ZipEntry entry = j.getEntry(p);
+                InputStream inputStream = j.getInputStream(entry);
+                Path outputPath = contentRoot.resolve(p);
+                boolean mkdirsResultIgnored = outputPath.getParent().toFile().mkdirs();
+                Files.copy(inputStream, outputPath);
+                outputPath.toFile().deleteOnExit();
+                mkLinkToCwd(contentRoot, p);
+            }
+            j.close();
+        }
+    }
+
+    static Path getPathToLink(boolean isTmp) throws IOException {
         if (!isTmp) {
             return Paths.get(System.getProperty("user.dir"));
         } else {
@@ -71,7 +147,7 @@ public class NativeLibPreparer {
      * @return
      * @throws IOException
      */
-    public static Path mkLinkToCwd(Path dir, String subPath) throws IOException {
+    static Path mkLinkToCwd(Path dir, String subPath) throws IOException {
         Path finalPath = dir.resolve(subPath);
         Path cwd = Paths.get(System.getProperty("user.dir"));
         Path linkPath = cwd.resolve(subPath);
@@ -95,86 +171,27 @@ public class NativeLibPreparer {
         return linkPath;
     }
 
-    public static String makeAvailable(Map<String, InputStream> entries) throws IOException {
-        Path jn = getPathToLink(true);
-        for (Map.Entry<String, InputStream> entry: entries.entrySet())
-            extractTo(jn, entry.getKey(), entry.getValue());
-
-        return jn.toFile().getAbsolutePath();
-    }
-
-    public static String makeAvailable(List<Map.Entry<String, InputStream>> entries) throws IOException {
-        Path jn = getPathToLink(true);
-        for (Map.Entry<String, InputStream> entry: entries)
-            extractTo(jn, entry.getKey(), entry.getValue());
-        
-        return jn.toFile().getAbsolutePath();
-    }
-
-    public static String makeAvailable(String[] entryPaths) throws URISyntaxException, IOException {
-        File jarFile = new File(NativeLibPreparer.class.getProtectionDomain().getCodeSource().getLocation()
-                .toURI());
-        String jarFilePath = jarFile.getPath();
-//        String jnaLibPath = String.format("file://%s!/darwin", jarFilePath);
-//        System.out.println("jnaLibPath: " + jnaLibPath);
-//        System.setProperty("jna.library.path",
-//                jnaLibPath
-//        );
-
-
-        Path jn = getPathToLink(true);
-        extractTo(jarFile, jn, entryPaths);
-
-
-//        Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-l", "-c", String.format("find \"%s\"", jn.toFile().getAbsolutePath())});
-        /*Process p = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-l", "-c", String.format("find \"%s\"", System.getProperty("user.dir"))});
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        for (String line = bufferedReader.readLine(); line != null; line = bufferedReader.readLine()) {
-            System.out.println(line);
-        }
-        bufferedReader.close();
-        BufferedReader errbufferedReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        for (String line = errbufferedReader.readLine(); line != null; line = errbufferedReader.readLine()) {
-            System.out.println(line);
-        }
-        errbufferedReader.close();*/
-        return jn.toFile().getAbsolutePath();
-    }
-
-    static void extractTo(File jarFile, Path contentRoot, String[] subPaths) throws IOException {
-        if (jarFile.isDirectory()) {
-//            System.out.println("jarFile is a directory.");  // debug
-            for (String p: subPaths) {
-                mkLinkToCwd(contentRoot, p);
-            }
-        } else {
-//            System.out.println("jarFile is not a directory.");  // debug
-            ZipFile j = new ZipFile(jarFile);
-            for (String p : subPaths) {
-                ZipEntry entry = j.getEntry(p);
-                InputStream inputStream = j.getInputStream(entry);
-                Path outputPath = contentRoot.resolve(p);
-//                System.out.println("Extract " + p + " to " + outputPath);  // debug
-                boolean mkdirsResultIgnored = outputPath.getParent().toFile().mkdirs();
-                Files.copy(inputStream, outputPath);
-                outputPath.toFile().deleteOnExit();
-                mkLinkToCwd(contentRoot, p);
-            }
-            j.close();
-        }
-    }
-
     static void extractTo(Path contentRoot, String filename, InputStream inputStream) throws IOException {
-//       System.out.println("jarFile is not a directory.");  // debug
         Path outputPath = contentRoot.resolve(filename);
-//       System.out.println("Extract " + p + " to " + outputPath);  // debug
         boolean mkdirsResultIgnored = outputPath.getParent().toFile().mkdirs();
         Files.copy(inputStream, outputPath);
         outputPath.toFile().deleteOnExit();
         mkLinkToCwd(contentRoot, filename);
     }
 
-    public static void appendLoadDir(String libPath, String key) throws IOException {
+    static void appendSystemLibraryPath() {
+        String currentSysLibPath = System.getProperty(NAME_JAVA_LIBRARY_PATH);
+        String[] paths = currentSysLibPath.split(File.pathSeparator);
+        for (String p: paths) {
+            if (p.equals(".")) return;
+        }
+        StringBuilder sb = new StringBuilder(".");
+        sb.append(File.pathSeparator);
+        sb.append(currentSysLibPath);
+        System.setProperty(NAME_JAVA_LIBRARY_PATH, sb.toString());
+    }
+
+    static void appendLoadDir(String libPath, String key) throws IOException {
         StringBuilder sb = new StringBuilder(libPath);
         sb.append(File.pathSeparator);
         String origJnaLibPath = System.getProperty(key, null);
@@ -187,8 +204,6 @@ public class NativeLibPreparer {
                 sb.toString()
         );
         System.out.println("P:" + System.getProperty(key));
-
-//        AbxClient.ClassPathHacker.addFile(new File(libPath));
     }
 
 }
