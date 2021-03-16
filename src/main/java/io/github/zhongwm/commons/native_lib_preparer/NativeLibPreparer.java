@@ -90,7 +90,7 @@ public class NativeLibPreparer {
     /**
      * make available the entries from your name to InputStream map, 3 of 3 overloads.
      *
-     * @param entries
+     * @param entryPaths
      * @return
      * @throws IOException
      */
@@ -100,6 +100,7 @@ public class NativeLibPreparer {
         String jarFilePath = jarFile.getPath();
         Path jn = getPathToLink(true);
         extractTo(jarFile, jn, entryPaths);
+        if (System.getProperty("os.name").startsWith("Linux")) appendSystemLibraryPath();
         return jn.toFile().getAbsolutePath();
     }
 
